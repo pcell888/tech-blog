@@ -5,39 +5,23 @@ theme: "PaperMod"
 pagination:
   pagerSize: 10
 defaultContentLanguage: "zh"
+ignoreLogs: ["warning-goldmark-raw-html"]
 
 params:
   description: "伊来尔去的个人技术博客，记录编程、系统设计与技术思考"
   author: "伊来尔去"
   dateFormat: "2006-01-02"
 
-  # 首页信息
   homeInfoParams:
     Title: "伊来尔去"
     Content: "软件开发者，热爱技术与写作。在这里记录编程实践、系统设计思考与AI探索。"
 
-  # 头像（可选，取消注释并替换图片路径）
-  # profileMode:
-  #   enabled: true
-  #   title: "伊来尔去"
-  #   subtitle: "软件开发者 · 技术写作者"
-  #   imageUrl: "/avatar.jpg"
-  #   imageWidth: 120
-  #   imageHeight: 120
-  #   buttons:
-  #     - name: "文章"
-  #       url: "/posts/"
-  #     - name: "关于"
-  #       url: "/about/"
-
-  # 社交链接
   socialIcons:
     - name: "github"
       url: "https://github.com/pcell888"
     - name: "rss"
       url: "index.xml"
 
-  # 文章样式
   cover:
     linkFullImages: true
   ShowToc: true
@@ -49,7 +33,6 @@ params:
   ShowCodeCopyButtons: true
   showFullTextviewInRSS: true
 
-  # 搜索功能
   fuseOpts:
     isCaseSensitive: false
     shouldSort: true
@@ -79,6 +62,9 @@ menu:
       weight: 30
 
 markup:
+  goldmark:
+    renderer:
+      unsafe: true
   highlight:
     noClasses: false
     lineNos: true
