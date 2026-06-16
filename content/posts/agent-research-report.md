@@ -21,13 +21,14 @@ tags:
 
 所有动态 Benchmark 共享一个交互式评估循环：
 
-```
-环境初始化 (Sandbox/Docker/Browser)
-  → 任务注入 (Goal + Success Criteria)
-  → 交互循环 (Agent 观察 → 行动 → 环境反馈)
-  → 终止 (步数限制 / 成功标记 / Agent 提交答案)
-  → 评分 (最终状态 vs Ground Truth)
-```
+{{< mermaid >}}
+graph LR
+    A[环境初始化<br/>Sandbox/Docker/Browser] --> B[任务注入<br/>Goal + Success Criteria]
+    B --> C{交互循环<br/>Agent 观察 → 行动 → 环境反馈}
+    C -->|步数限制/成功标记| D[终止]
+    C -->|继续| C
+    D --> E[评分<br/>最终状态 vs Ground Truth]
+{{< /mermaid >}}
 
 ### 1.2 代表性 Benchmark
 
@@ -190,18 +191,9 @@ tags:
 
 ### 5.2 项目结构
 
-```
+```text
 packages/
 ├── core/          # Agent 核心 (@opencode-ai/core)
-│   ├── src/
-│   │   ├── agent.ts      — Agent 定义、管理、CRUD
-│   │   ├── model.ts      — 模型定义、能力、成本
-│   │   ├── provider.ts   — Provider 定义 (OpenAI, Anthropic, Google...)
-│   │   ├── session.ts    — Session ID 生成
-│   │   ├── plugin.ts     — 插件/Hook 系统
-│   │   ├── permission.ts — 权限系统 (Allow/Deny/Ask)
-│   │   ├── tool-output.ts— 工具输出定义
-│   │   └── ...           — git, filesystem, process 等
 ├── console/       # CLI 终端
 ├── app/           # Web UI / 桌面应用
 ├── containers/    # Docker 容器定义
@@ -278,27 +270,13 @@ export const Rule = Schema.Struct({
 
 ### 6.2 项目结构
 
-```
+```text
 hermes-agent/
 ├── run_agent.py           # AIAgent 核心类 ~4000行
-├── agent/
-│   ├── conversation_loop.py  # run_conversation 主循环
-│   ├── prompt_builder.py     # 系统提示词构建
-│   ├── tool_executor.py      # 工具调度执行
-│   ├── memory_manager.py     # 跨会话记忆
-│   ├── context_compressor.py # 上下文压缩
-│   └── ...
-├── tools/                 # 每个文件一个工具
-│   ├── registry.py        # 中央工具注册表
-│   ├── terminal_tool.py
-│   ├── file_tools.py
-│   ├── web_tools.py
-│   └── ...
+├── agent/                 # Agent 循环、记忆、上下文
+├── tools/                 # 工具注册表 + 各工具实现
 ├── hermes_cli/            # CLI 子命令
-│   ├── commands.py        # Slash 命令注册
-│   └── main.py            # 入口 + argparse
-├── gateway/               # 消息网关
-│   └── platforms/         # Telegram/Discord/Slack...
+├── gateway/               # 消息网关 (多平台)
 ├── cron/                  # 定时任务调度器
 ├── toolsets.py            # 工具集定义
 └── tests/                 # ~3000 测试
@@ -386,17 +364,14 @@ TOOLSETS = {
 
 ### 8.1 核心架构 (最小可行)
 
-```
-┌─────────────────────────────────────────────┐
-│                 Agent Loop                    │
-│  ┌──────────┐   ┌──────────┐   ┌──────────┐ │
-│  │ LLM Call  │──>│ Tool     │──>│ Tool     │ │
-│  │ (stream)  │   │ Dispatch │   │ Execute  │ │
-│  └──────────┘   └──────────┘   └──────────┘ │
-│       ↑                                      │
-│       └──── context + memory ──────────────── │
-└─────────────────────────────────────────────┘
-```
+{{< mermaid >}}
+graph LR
+    subgraph Agent_Loop[Agent Loop]
+        A[LLM Call<br/>(stream)] --> B[Tool Dispatch]
+        B --> C[Tool Execute]
+        C -.->|context + memory| A
+    end
+{{< /mermaid >}}
 
 ### 8.2 建议技术栈 (Python)
 
@@ -610,31 +585,23 @@ class AgentHarness:
 
 ### 8.6 整体架构图
 
-```
-┌─────────────────────────────────────────────────────┐
-│                     Agent System                      │
-│                                                       │
-│  ┌─────────────┐   ┌──────────────┐   ┌──────────┐  │
-│  │  LLM Client  │   │ Tool Registry│   │  Memory   │  │
-│  │ (OpenAI SDK) │   │ (注册表模式)  │   │ (SQLite)  │  │
-│  └──────┬──────┘   └──────┬───────┘   └─────┬────┘  │
-│         │                 │                  │        │
-│         └─────────────────┼──────────────────┘        │
-│                           │                           │
-│                    ┌──────▼───────┐                   │
-│                    │  Agent Loop   │                   │
-│                    │ (msg→tools→   │                   │
-│                    │  msg→...)     │                   │
-│                    └──────┬───────┘                   │
-│                           │                           │
-│              ┌────────────┼────────────┐              │
-│              │            │            │              │
-│         ┌────▼───┐  ┌────▼───┐  ┌────▼───┐         │
-│         │CLI App │  │Gateway │  │  Eval  │         │
-│         │(REPL)  │  │(API)   │  │Harness │         │
-│         └────────┘  └────────┘  └────────┘         │
-└─────────────────────────────────────────────────────┘
-```
+{{< mermaid >}}
+graph TB
+    subgraph Agent_System[Agent System]
+        A[LLM Client<br/>(OpenAI SDK)]
+        B[Tool Registry<br/>注册表模式]
+        C[Memory<br/>SQLite]
+        D[Agent Loop<br/>msg → tools → msg → ...]
+        
+        A --> D
+        B --> D
+        C --> D
+        
+        D --> E[CLI App<br/>REPL]
+        D --> F[Gateway<br/>API]
+        D --> G[Eval Harness]
+    end
+{{< /mermaid >}}
 
 ### 8.7 从零实现路线图
 
