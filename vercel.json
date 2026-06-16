@@ -1,5 +1,4 @@
 {
   "buildCommand": "hugo --gc",
-  "outputDirectory": "public",
-  "installCommand": "git submodule update --init --depth 1"
+  "outputDirectory": "public"
 }
