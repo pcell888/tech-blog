@@ -1,0 +1,54 @@
+baseURL: "/"
+languageCode: "zh-cn"
+title: "我的技术博客"
+theme: "PaperMod"
+pagination:
+  pagerSize: 10
+defaultContentLanguage: "zh"
+
+params:
+  description: "个人技术博客，记录编程与学习的点滴"
+  author: "Your Name"
+  dateFormat: "2006-01-02"
+  homeInfoParams:
+    Title: "你好 👋"
+    Content: "欢迎来到我的技术博客。这里记录我在编程、系统设计和技术探索中的思考与总结。"
+  socialIcons:
+    - name: "github"
+      url: "https://github.com/your-username"
+    - name: "rss"
+      url: "index.xml"
+  cover:
+    linkFullImages: true
+  ShowToc: true
+  TocOpen: false
+  ShowReadingTime: true
+  ShowShareButtons: false
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowCodeCopyButtons: true
+  showFullTextviewInRSS: true
+
+menu:
+  main:
+    - identifier: "posts"
+      name: "文章"
+      url: "/posts/"
+      weight: 10
+    - identifier: "tags"
+      name: "标签"
+      url: "/tags/"
+      weight: 20
+    - identifier: "about"
+      name: "关于"
+      url: "/about/"
+      weight: 30
+
+markup:
+  highlight:
+    noClasses: false
+    lineNos: true
+    lineNumbersInTable: false
+
+outputs:
+  home: ["HTML", "RSS", "JSON"]
