@@ -23,11 +23,17 @@ tags:
 
 {{< mermaid >}}
 graph LR
-    A[环境初始化<br/>Sandbox/Docker/Browser] --> B[任务注入<br/>Goal + Success Criteria]
-    B --> C{交互循环<br/>Agent 观察 → 行动 → 环境反馈}
-    C -->|步数限制/成功标记| D[终止]
-    C -->|继续| C
-    D --> E[评分<br/>最终状态 vs Ground Truth]
+    A["环境初始化<br/>Sandbox / Docker / Browser"]
+    B["任务注入<br/>Goal + Success Criteria"]
+    C{"交互循环<br/>Agent 观察 → 行动 → 环境反馈"}
+    D[终止]
+    E["评分<br/>最终状态 vs Ground Truth"]
+
+    A --> B
+    B --> C
+    C -->|步数限制或成功| D
+    C -->|继续循环| C
+    D --> E
 {{< /mermaid >}}
 
 ### 1.2 代表性 Benchmark
@@ -366,9 +372,13 @@ TOOLSETS = {
 
 {{< mermaid >}}
 graph LR
-    subgraph Agent_Loop[Agent Loop]
-        A[LLM Call<br/>(stream)] --> B[Tool Dispatch]
-        B --> C[Tool Execute]
+    subgraph Agent_Loop["Agent Loop"]
+        A["LLM Call (stream)"]
+        B["Tool Dispatch"]
+        C["Tool Execute"]
+
+        A --> B
+        B --> C
         C -.->|context + memory| A
     end
 {{< /mermaid >}}
@@ -587,19 +597,19 @@ class AgentHarness:
 
 {{< mermaid >}}
 graph TB
-    subgraph Agent_System[Agent System]
-        A[LLM Client<br/>(OpenAI SDK)]
-        B[Tool Registry<br/>注册表模式]
-        C[Memory<br/>SQLite]
-        D[Agent Loop<br/>msg → tools → msg → ...]
-        
+    subgraph Agent_System["Agent System"]
+        A["LLM Client (OpenAI SDK)"]
+        B["Tool Registry 注册表模式"]
+        C["Memory (SQLite)"]
+        D["Agent Loop<br/>msg → tools → msg → ..."]
+
         A --> D
         B --> D
         C --> D
-        
-        D --> E[CLI App<br/>REPL]
-        D --> F[Gateway<br/>API]
-        D --> G[Eval Harness]
+
+        D --> E["CLI App (REPL)"]
+        D --> F["Gateway (API)"]
+        D --> G["Eval Harness"]
     end
 {{< /mermaid >}}
 
